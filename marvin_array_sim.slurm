@@ -20,13 +20,13 @@
 
 ### #SBATCH --ntasks 8      # number of procs to start
 ### or
-#SBATCH --ntasks-per-node 12 # tasks per node ; num of processes per node
+#SBATCH --ntasks-per-node 24 # tasks per node ; num of processes per node
 #SBATCH --cpus-per-task 4 # number of cores per task ; threads per process
 
 #SBATCH --nodes 1  # number of nodes
-#SBATCH --array=0-23  # Define the array size, 24 schs
+#SBATCH --array=0 # Define the array size (= Num. sch. files) 
 
-#SBATCH --job-name=det100_n12c4_sim 
+#SBATCH --job-name=det100_n24c4_sim 
 ### Job name, det#ndets_#ntaskstotal_#corespertask_sim
 ### ntasks = 8, cpus=4, d200 seems best ~ 90min
 
@@ -37,14 +37,14 @@
 ### #SBATCH --mem-per-cpu=10G # mem per proc, baseline 8G
 #SBATCH --mem=400G                # max mem requested, per node [min 400G for 1000 dets]
 ### Maximum requested time (days-hrs:min:sec)
-#SBATCH --time 0-00:05:00 #estimated runtime max 0-04:00:00
+#SBATCH --time 0-02:00:00 #estimated runtime max 0-04:00:00
 
 ### #SBATCH --mail-type=ALL   # notifications for job done & fail
 ### #SBATCH --mail-user=adev@astro.uni-bonn.de #user email for updates
 ### #SBATCH --output ./logs/%j.%x.out   # stdout file (overwrite)
 ### #SBATCH --error ./logs/%j.%x.err     # stdout file (overwrite)
-#SBATCH --output ./logs/%A_%a_%x.out 
-#SBATCH --error ./logs/%A_%a_%x.err 
+#SBATCH --output ./logs_sim/%A_%a_%x.out 
+#SBATCH --error ./logs_sim/%A_%a_%x.err 
 
 
 ### section 2 - Runtime env set-up

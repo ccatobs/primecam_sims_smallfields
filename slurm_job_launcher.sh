@@ -1,6 +1,7 @@
 #!/bin/bash
 
-SBATCH_SCRIPT="marvin_array_sim.slurm"
+###SBATCH_SCRIPT="marvin_array_sim.slurm"
+SBATCH_SCRIPT="marvin_toast_mapmaker.slurm"
 ###SBATCH_SCRIPT="marvin_mlmap.slurm"
 
 # Submit the Slurm job and capture the job ID

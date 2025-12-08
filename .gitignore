@@ -10,6 +10,7 @@ write_footprint_primecam.py
 *.log
 ccat_datacenter_mock/*
 logs/*
+logs*
 input_files/pysm3_map_nside2048_allStokes.fits
 marvin_run_debug.slurm
 marvin_run.slurm.bck
