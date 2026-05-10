@@ -17,12 +17,12 @@ def main():
         description="Write TOAST F&B maps for a given dir")
     parser.add_argument('-in', '--input_dir',
                         type=str,
-                        default="orionA_ATMdata_d10",
-                        help="Input parent directory with Obs. h5 files")
+                        default="ccat_datacenter_mock/mockdata/",
+                        help="Relative path to directory with Obs. h5 files")
     parser.add_argument('-out', '--output_dir',
                         type=str,
-                        default="outmaps_fb_default",
-                        help="Output `directory for maps")
+                        default="ccat_datacenter_mock/fb_maps/",
+                        help="Relative output directory for maps")
     parser.add_argument('-g', '--grp_size',
                         type=int,
                         default=4,
@@ -37,8 +37,6 @@ def main():
     output_dir = parsed_args.output_dir
     grp_size = parsed_args.grp_size
     note_msg = parsed_args.note_msg
-    
-    ccat_data_dir = f"ccat_datacenter_mock/data_testmpi"
     
     #=============================#
     ### Setup
@@ -56,6 +54,8 @@ def main():
     timer_global = toast.timing.Timer()
     timer_global.start()
     
+    log_global.info_rank(
+        f"Using TOAST version: {toast.__version__}", comm)
     log_global.info_rank(f"Parallel HDF5 enabled: {h5py.get_config().mpi}", comm)
     log_global.info_rank(f"Procs, Rank: {procs, rank}", comm)
     log_global.info_rank(f"Group info: GSize GRank: {toast_comm.group_size, toast_comm.group_rank}", comm)
@@ -76,17 +76,16 @@ def main():
     #--------------------------------------------------#
 
     # Input Data Dir
-    parent_dir = os.path.join(ccat_data_dir, input_dir)
+    parent_dir = input_dir
     
     # Maps Output Directory
-    maps_outdir = os.path.join(f"ccat_datacenter_mock", f"outmaps")
-    savemaps_dir = os.path.join(maps_outdir, output_dir) 
+    savemaps_dir = output_dir
     mapname_prefix = f"orionA"
     os.makedirs(savemaps_dir, exist_ok=True)    
     
     log_global.info_rank(f"Loading data for: {parent_dir}", comm)
     
-    if rank == 0 and (len(note_msg.strip()) > 0):
+    if rank == 0 and note_msg and (len(note_msg.strip()) > 0):
         # Write notes
         notes_file = os.path.join(savemaps_dir, f'notes.txt')
         with open(notes_file, 'w') as f:
@@ -134,7 +133,8 @@ def main():
     # Instantiate the LoadHDF5 operator
     loader = toast.ops.LoadHDF5(
         volume=data_input_path,  # Directory with observation files
-        pattern=r"obs_.*_.*\.h5",                  # Match files like '"obs_.*_.*\.h5"'
+        # pattern=r"obs_.*_.*\.h5",               # Match files like '"obs_.*_.*\.h5"'
+        pattern = r".*\.h5$",                     # Match all h5 obs
         # files=[],                               # Use volume + pattern to find files
         meta=meta_list,     
         shared=shared_list, 
@@ -214,7 +214,7 @@ def main():
     #Set up the pointing used in the binning operator
     binner_final = toast.ops.BinMap(name="binner_final", pixel_dist="pix_dist_final")
     binner_final.enabled = True
-    # Default: shared_mask_nonscience is flagged
+    ### Default: shared_mask_nonscience is flagged
     # binner_final.shared_flag_mask = 0 #No flags masked; include all data and turnarounds
     binner_final.pixel_pointing = pixels_wcs_radec
     binner_final.stokes_weights = weights_radec

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-###############################################
-###     SLURM script for primecam_sims     ####
-###      ARRAY JOB runs all schedules      ####
-###					   ####
-###     Tested on Uni Bonn Marvin Cluster  ####
-###             v2.0 , 18.10.2024          ####
-###############################################
+################################################
+###     SLURM script for primecam_sims      ####
+###      ARRAY JOB runs all schedules       ####
+###					                        ####
+###     Tested on Uni Koeln Ramses Cluster  ####
+###             v1.0 , 08.05.2026           ####
+################################################
 
 ### This script runs through all the schedule files
 ### launching SLURM ARRAY jobs for each schedule independently
@@ -14,48 +14,42 @@
 
 ### section 1 - SLURM params
 
-#SBATCH --partition=intelsr_short
-### cluster specific / intelsr_short, lm_short, lm_devel
-### https://wiki.hpc.uni-bonn.de/en/running_jobs
+#SBATCH --partition=smp
+#SBATCH --account=ag-riechers # For Ramses/ CCAT
 
-### #SBATCH --ntasks 8      # number of procs to start
-### or
-#SBATCH --ntasks-per-node 24 # tasks per node ; num of processes per node
-#SBATCH --cpus-per-task 4 # number of cores per task ; threads per process
+#SBATCH --ntasks-per-node 12 # 24 # tasks per node ; num of processes per node
+#SBATCH --cpus-per-task 4 #8 # number of cores per task ; threads per process
 
 #SBATCH --nodes 1  # number of nodes
-#SBATCH --array=0 # Define the array size (= Num. sch. files) 
+#SBATCH --array=0 #0-23  # Define the array size, 24 schs
 
-#SBATCH --job-name=det100_n24c4_sim 
+#SBATCH --job-name=det100_n12c4_sim 
 ### Job name, det#ndets_#ntaskstotal_#corespertask_sim
-### ntasks = 8, cpus=4, d200 seems best ~ 90min
 
-### #ntasks = #nodes x #ntasks-per-node
-### #ncores_total = #ntasks x #cpus-per-task
-### #ncores_total_pernode = #ntasks-per-node x #cpus-per-task
-
-### #SBATCH --mem-per-cpu=10G # mem per proc, baseline 8G
 #SBATCH --mem=400G                # max mem requested, per node [min 400G for 1000 dets]
 ### Maximum requested time (days-hrs:min:sec)
-#SBATCH --time 0-02:00:00 #estimated runtime max 0-04:00:00
+#SBATCH --time 0-00:20:00 #estimated runtime max 0-04:00:00
 
-### #SBATCH --mail-type=ALL   # notifications for job done & fail
-### #SBATCH --mail-user=adev@astro.uni-bonn.de #user email for updates
-### #SBATCH --output ./logs/%j.%x.out   # stdout file (overwrite)
-### #SBATCH --error ./logs/%j.%x.err     # stdout file (overwrite)
-#SBATCH --output ./logs_sim/%A_%a_%x.out 
-#SBATCH --error ./logs_sim/%A_%a_%x.err 
-
+#SBATCH --output ./logs_sims/%A_%a_%x.out 
+#SBATCH --error ./logs_sims/%A_%a_%x.err 
+### To handle dir ownership issues
+umask 0002
+mkdir -p logs_sims
+chmod g+rws logs_sims
 
 ### section 2 - Runtime env set-up
+echo ""
+echo "*************"
+echo "Loading Modules and Env..."
 module purge
 ### load all modules needed for Job
-module load mpi4py
+module load lang/Miniconda3/23.9.0-0
+module load lib/mpi4py/3.1.5-gompi-2023b
 ### initiate conda
-### source /opt/software/easybuild-INTEL/software/Anaconda3/2022.05/etc/profile.d/conda.sh
-source /opt/software/easybuild-INTEL/software/Miniforge3/24.1.2-0/etc/profile.d/conda.sh
 conda deactivate
+# conda activate mlmap
 conda activate toast3
+echo "*************"
 
 ### section 3 - Job Logging
 echo ""
@@ -76,6 +70,7 @@ echo "Total Number of Nodes: $SLURM_JOB_NUM_NODES"
 echo "Current working directory is `pwd`"
 echo "Python path: $(which python)"
 echo "Using MPI lib: $(which mpirun)"
+echo "mpi4py import version: $(python -c 'import mpi4py; print(mpi4py.__version__)')"
 echo "Using GCC lib: $(which gcc)"
 echo ""
 

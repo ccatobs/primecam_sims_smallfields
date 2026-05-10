@@ -1,8 +1,10 @@
 #!/bin/bash
+umask 0002
+mkdir -p logs
+chmod g+rws logs
 
-###SBATCH_SCRIPT="marvin_array_sim.slurm"
-SBATCH_SCRIPT="marvin_toast_mapmaker.slurm"
-###SBATCH_SCRIPT="marvin_mlmap.slurm"
+SBATCH_SCRIPT="ramses_array_sim.slurm"
+###SBATCH_SCRIPT="ramses_fbmap.slurm"
 
 # Submit the Slurm job and capture the job ID
 JOB_SUBMIT_OUTPUT=$(sbatch "$SBATCH_SCRIPT")

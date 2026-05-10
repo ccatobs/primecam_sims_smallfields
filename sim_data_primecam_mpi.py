@@ -72,8 +72,10 @@ import time as t
 # Define the global args class
 class Args:
     def __init__(self, parsed_args):   
-        self.weather = 'atacama'
+        self.scan_inmap = True # Toggle to Scan Input Sky Map; Default False
         self.sim_atm = True #True Default
+        self.sim_noise = True #True Default # Toggle to Simulate Detector Noise
+        self.weather = 'atacama'
         self.sample_rate = 488 * u.Hz #488 Hz # or 244 Hz
         self.scan_rate_az = 0.5  * (u.deg / u.s) #on sky rate , or 1 deg/s
         #fix_rate_on_sky (bool):  If True, `scan_rate_az` is given in sky coordinates and azimuthal
@@ -85,13 +87,10 @@ class Args:
         # g3_outdir = "./g3_dataframes"
         self.h5_outdir = os.path.join(
             ".", "ccat_datacenter_mock", 
-            "data_testmpi", 
+            "mockdata", 
             f"orionA_ATMdata_d{parsed_args.dets}"
         )
-
-        self.sim_noise = True #True Default # Toggle to Simulate Detector Noise
         
-        self.scan_inmap = True # Toggle to Scan Input Sky Map; Default False
         self.mode = "IQU" #"IQU"
         self.input_map = "pysm3_map_nside2048_allStokes.fits"
         self.nside = 2048 #1024
@@ -218,8 +217,8 @@ def primecam_mockdata_pipeline(args, comm, focalplane, schedule, group_size):
     #Atmosphere set-up
     rand_realisation = random.randint(10000, 99999)
     tel_fov = 1.5* u.deg # 4* u.deg , changed 17.02.2025
-    # cache_dir = None
-    cache_dir = "./atm_cache"
+    cache_dir = None
+    # cache_dir = "./atm_cache"
 
     sim_atm_coarse =toast.ops.SimAtmosphere(
                     name="sim_atm_coarse",
